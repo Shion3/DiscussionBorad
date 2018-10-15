@@ -123,6 +123,22 @@ export default class DiscussionService {
             return -1;
         });
     }
-
-
+    ///messages需要保证子节点一定在父节点之后，可以创建时间或者ID排序。
+    public MessageAddChildren(discussionId: number, messages: Array<any>): Array<any> {
+        messages.splice(0, 0, { children: '' });
+        var messageIDs = [];
+        messages.map((message, index) => {
+            if(index==0) return;
+            messageIDs.push(message.ID);
+            message.children = '';
+            if (message.ParentItemID == discussionId) {
+                messages[0].children += `,${index}`
+            }
+            let parentIndex = messageIDs.indexOf(message.ParentItemID)
+            if (parentIndex != -1) {
+                messages[parentIndex].children += `,${index}`;
+            }
+        });
+        return messages;
+    }
 }

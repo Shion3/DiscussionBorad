@@ -19,7 +19,9 @@ export default class DiscussionBorad extends React.Component<IDiscussionBoradPro
   public componentWillMount() {
     //discussion id!!!!!!!!
     this.servcice.RetriveSpecificDiscussion(this.props.discussionId).then((discussion) => {
-      this.servcice.RetriveMessages(discussion.Title).then((message) => {
+      this.servcice.RetriveMessages(discussion.Title).then((messages) => {
+        return this.servcice.MessageAddChildren(discussion.Id, messages)
+      }).then((message) => {
         this.setState({ discussion: discussion, messages: message });
       })
     })
