@@ -1,0 +1,18 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/config.2.0.schema.json",
+  "version": "2.0",
+  "bundles": {
+    "discussion-borad-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/discussionBorad/DiscussionBoradWebPart.js",
+          "manifest": "./src/webparts/discussionBorad/DiscussionBoradWebPart.manifest.json"
+        }
+      ]
+    }
+  },
+  "externals": {},
+  "localizedResources": {
+    "DiscussionBoradWebPartStrings": "lib/webparts/discussionBorad/loc/{locale}.js"
+  }
+}

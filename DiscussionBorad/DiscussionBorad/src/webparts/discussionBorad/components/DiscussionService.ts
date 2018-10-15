@@ -1,0 +1,123 @@
+import { IWebPartContext } from '@microsoft/sp-webpart-base';
+import * as $ from 'jquery';
+import {
+    SPHttpClient,
+    SPHttpClientResponse
+} from '@microsoft/sp-http';
+import { Web } from '../../../../node_modules/sp-pnp-js/lib/pnp';
+import pnp, { Item } from 'sp-pnp-js';
+
+
+
+export default class DiscussionService {
+    private _webPartContext: IWebPartContext;
+    private ListTitle: string;
+
+    constructor(value: IWebPartContext, listTitle: string) {
+        this._webPartContext = value;
+        this.ListTitle = listTitle;
+    }
+
+    private Post(url, postData, resolve, reject) {
+        let fetchProps: RequestInit = {
+            method: "POST",
+            mode: "cors",
+            headers: { "Accept": "application/json;odata=verbose", "cookie": document.cookie },
+            credentials: "include"
+        };
+        return fetch(this._webPartContext.pageContext.web.absoluteUrl + "/_api/contextinfo", fetchProps)
+            .then((response: any) => response.json()).then((responseJson: any) => {
+                let digest = responseJson.d.GetContextWebInformation.FormDigestValue as string;
+                let requestHeaders = {
+                    "Accept": "application/json; odata=verbose",
+                    "X-RequestDigest": digest,
+                };
+                $.ajax({
+                    url: url,
+                    method: "POST",
+                    contentType: "application/json;odata=verbose;charset=utf-8",
+                    headers: requestHeaders,
+                    data: JSON.stringify(postData),
+                    success: resolve,
+                    error: reject
+                });
+            });
+    }
+    public RetriveDiscussion(): Promise<any> {
+        const url = `${this._webPartContext.pageContext.web.absoluteUrl}/_api/web/lists/getByTitle('${this.ListTitle}')/items?$expand=FieldValuesAsText,Folder/ItemCount`
+        return this._webPartContext.spHttpClient.get(url, SPHttpClient.configurations.v1)
+            .then((response: SPHttpClientResponse) => {
+                return response.json().then(responseJSON => {
+                    return responseJSON;
+                });
+            });
+    }
+    public RetriveSpecificDiscussion(id: number): Promise<any> {
+        const expandFileds = ["FieldValuesAsText", "Folder"];
+        return pnp.sp.web.lists.getByTitle(this.ListTitle).items.getById(id).expand(...expandFileds).get().then((Discussion) => {
+            return Discussion;
+        })
+    }
+    public RetriveMessages(discussionTitle: string): Promise<any> {
+        const selectField = ["Body", "AuthorId", "FileDirRef", "LikedByStringId", "LikesCount", "ParentItemID", "ID"];
+        let filterStr = `FileDirRef eq '${this._webPartContext.pageContext.web.serverRelativeUrl}/Lists/${this.ListTitle}/${discussionTitle}'`;
+        return pnp.sp.web.lists.getByTitle(this.ListTitle).items.select(...selectField).filter(filterStr).get().then((Messages) => {
+            return Messages;
+        })
+    }
+    public AddDiscussion(): Promise<any> {
+        return new Promise<any>((resolve, reject) => {
+            let url = this._webPartContext.pageContext.web.absoluteUrl + "/_api/web/lists/getByTitle('" + this.ListTitle + "')/items";
+            let postData = { "__metadata": { "type": "SP.ListItem" }, "Title": "xxxxxxxxxxxx", "contentTypeId": "0x01200" };
+            this.Post(url, postData, resolve, reject);
+        }).then(msg => {
+            return msg;
+        }, err => {
+            return -1;
+        }).catch(ex => {
+            return -1;
+        });
+    }
+    public AddMessage(discussionTitle: string): Promise<any> {
+        return new Promise<any>((resolve, reject) => {
+            let url = this._webPartContext.pageContext.web.absoluteUrl + "/_api/web/lists/getByTitle('" + this.ListTitle + "')/AddValidateUpdateItemUsingPath";
+            let postData = {
+                "listItemCreateInfo": {
+                    "FolderPath": {
+                        "DecodedUrl":
+                            `${this._webPartContext.pageContext.web.absoluteUrl}/Lists/${this.ListTitle}/${discussionTitle}`
+                    },
+                    "UnderlyingObjectType": 0
+                },
+                "formValues": [
+                    {
+                        "FieldName": "Title",
+                        "FieldValue": "Reply"
+                    },
+                    {
+                        "FieldName": "Body",
+                        "FieldValue": "ddddddddddddddddddddddddddd"
+                    },
+                    {
+                        "FieldName": "ContentType",
+                        "FieldValue": "Message"
+                    },
+                    {
+                        "FieldName": "ContentType",
+                        "FieldValue": "Message"
+                    }
+                ],
+                "bNewDocumentUpdate": false
+            };
+            this.Post(url, postData, resolve, reject);
+        }).then(msg => {
+            return msg;
+        }, err => {
+            return -1;
+        }).catch(ex => {
+            return -1;
+        });
+    }
+
+
+}
