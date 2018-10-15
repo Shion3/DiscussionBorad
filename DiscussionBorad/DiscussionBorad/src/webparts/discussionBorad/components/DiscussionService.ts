@@ -65,6 +65,11 @@ export default class DiscussionService {
             return Messages;
         })
     }
+    public CheckUserIsInLikeString(userString: string[]): Promise<any> {
+        return pnp.sp.web.currentUser.get().then((user) => {
+            return userString.indexOf(user.Id.toString()) != -1;
+        })
+    }
     public AddDiscussion(): Promise<any> {
         return new Promise<any>((resolve, reject) => {
             let url = this._webPartContext.pageContext.web.absoluteUrl + "/_api/web/lists/getByTitle('" + this.ListTitle + "')/items";

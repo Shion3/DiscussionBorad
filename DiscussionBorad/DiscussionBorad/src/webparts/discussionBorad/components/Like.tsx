@@ -5,13 +5,27 @@ import DiscussionService from './DiscussionService';
 
 const discussionId = 4;
 
-export default class DiscussionBorad extends React.Component<ILikeProps, ILikeState> {
+export default class LikeBlock extends React.Component<ILikeProps, ILikeState> {
 
   private servcice: DiscussionService;
 
   constructor(props: ILikeProps) {
     super(props);
-    // this.servcice = new DiscussionService(this.props.context);
-    // this.state = { discussion: undefined, messages: [] };
+    this.servcice = this.props.service;
+    this.state = { isCurrentLike: false };
+  }
+
+  public componentWillMount() {
+    if (this.props.likeString) {
+      this.servcice.CheckUserIsInLikeString(this.props.likeString).then((result) => {
+        this.setState({ isCurrentLike: result });
+      })
+    }
+  }
+
+  public render(): React.ReactElement<ILikeProps> {
+    return (
+      <div>{this.state.isCurrentLike ? "aaaaaa" : "bbbbbbbbbbbb"}</div>
+    )
   }
 }

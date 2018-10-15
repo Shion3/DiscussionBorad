@@ -1,5 +1,8 @@
+import DiscussionService from "./DiscussionService";
+
 export interface ILikeProps {
-    likeString: string;
+    service: DiscussionService;
+    likeString: string[];
 }
 export interface ILikeState {
     isCurrentLike: boolean;

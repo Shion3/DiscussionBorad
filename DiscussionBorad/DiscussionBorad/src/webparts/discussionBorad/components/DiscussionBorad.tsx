@@ -3,6 +3,7 @@ import styles from './DiscussionBorad.module.scss';
 import { IDiscussionBoradProps, IDiscussionBoradState } from './IDiscussionBoradProps';
 import { escape } from '@microsoft/sp-lodash-subset';
 import DiscussionService from './DiscussionService';
+import LikeBlock from './Like';
 
 // const discussionId = 1;
 
@@ -27,21 +28,25 @@ export default class DiscussionBorad extends React.Component<IDiscussionBoradPro
     let messageBlock = null;
     messageBlock = this.state.messages.map((message, index) => {
       var html = { __html: message.Body };
+      let likeBlock = <LikeBlock service={this.servcice} likeString={message.LikedByStringId} ></LikeBlock>
       return <div key={"message" + index} className={styles.row}>
         <span className={styles.title}>AuthorID: {message.AuthorId}</span>
         <p dangerouslySetInnerHTML={html} className={styles.subTitle}></p>
         <p className={styles.description}>{message.LikesCount ? message.LikesCount : 0} Likes</p>
+        {likeBlock}
       </div>
     })
     return messageBlock;
   }
   protected createDiscussion() {
     var html = { __html: this.state.discussion.Body };
+    let likeBlock = <LikeBlock service={this.servcice} likeString={this.state.discussion.LikedByStringId} ></LikeBlock>
     return <div className={styles.row}>
       <span className={styles.title}>AuthorID: {this.state.discussion.AuthorId}</span>
       <p className={styles.subTitle}>{this.state.discussion.Folder.ItemCount} replies.</p>
       <p dangerouslySetInnerHTML={html} className={styles.description}></p>
       <p className={styles.description}>{this.state.discussion.LikesCount ? this.state.discussion.LikesCount : 0} Likes</p>
+      {likeBlock}
     </div>
   }
 
@@ -58,7 +63,7 @@ export default class DiscussionBorad extends React.Component<IDiscussionBoradPro
             {discussionBlock}
             {messageBlock}
           </div>
-          {/* <div style={{ width: "50px", height: "50px", backgroundColor: "green" }} onClick={() => this.servcice.addMessage(this.props.discussion.DiscussionFolder, "aaa")}>Commit</div> */}
+          {/* <div style={{ width: "50px", height: "50px", backgroundColor: "green" }} onClick={() => this.servcice.RetrieveUserID()}>Commit</div> */}
         </div>
       </div>
     );
