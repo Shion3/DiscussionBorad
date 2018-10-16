@@ -11,7 +11,33 @@
       ]
     }
   },
-  "externals": {},
+  "externals": {
+    "sp-init": {
+      "path": "https://acsdev365.sharepoint.com/_layouts/15/init.js",
+      "globalName": "$_global_init"
+    },
+    "microsoft-ajax": {
+      "path": "https://acsdev365.sharepoint.com/_layouts/15/MicrosoftAjax.js",
+      "globalName": "Sys",
+      "globalDependencies": [
+        "sp-init"
+      ]
+    },
+    "sp-runtime": {
+      "path": "https://acsdev365.sharepoint.com/_layouts/15/SP.Runtime.js",
+      "globalName": "SP",
+      "globalDependencies": [
+        "microsoft-ajax"
+      ]
+    },
+    "sharepoint": {
+      "path": "https://acsdev365.sharepoint.com/_layouts/15/SP.js",
+      "globalName": "SP",
+      "globalDependencies": [
+        "sp-runtime"
+      ]
+    }
+  },
   "localizedResources": {
     "DiscussionBoradWebPartStrings": "lib/webparts/discussionBorad/loc/{locale}.js"
   }

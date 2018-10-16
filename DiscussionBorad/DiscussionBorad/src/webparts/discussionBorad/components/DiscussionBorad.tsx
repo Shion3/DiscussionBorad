@@ -4,6 +4,7 @@ import { IDiscussionBoradProps, IDiscussionBoradState } from './IDiscussionBorad
 import { escape } from '@microsoft/sp-lodash-subset';
 import DiscussionService from './DiscussionService';
 import LikeBlock from './Like';
+import Replay from './Reply'
 
 // const discussionId = 1;
 
@@ -29,6 +30,7 @@ export default class DiscussionBorad extends React.Component<IDiscussionBoradPro
   protected createMessage() {
     let messageBlock = null;
     messageBlock = this.state.messages.map((message, index) => {
+      if (index == 0) return;
       var html = { __html: message.Body };
       let likeBlock = <LikeBlock service={this.servcice} likeString={message.LikedByStringId} ></LikeBlock>
       return <div key={"message" + index} className={styles.row}>
@@ -36,6 +38,7 @@ export default class DiscussionBorad extends React.Component<IDiscussionBoradPro
         <p dangerouslySetInnerHTML={html} className={styles.subTitle}></p>
         <p className={styles.description}>{message.LikesCount ? message.LikesCount : 0} Likes</p>
         {likeBlock}
+        <Replay service={this.servcice} folderPath={this.state.discussion.Title} parentMsg={message} />
       </div>
     })
     return messageBlock;
@@ -49,6 +52,7 @@ export default class DiscussionBorad extends React.Component<IDiscussionBoradPro
       <p dangerouslySetInnerHTML={html} className={styles.description}></p>
       <p className={styles.description}>{this.state.discussion.LikesCount ? this.state.discussion.LikesCount : 0} Likes</p>
       {likeBlock}
+      <Replay service={this.servcice} folderPath={this.state.discussion.Title} parentMsg={this.state.discussion} />
     </div>
   }
 
