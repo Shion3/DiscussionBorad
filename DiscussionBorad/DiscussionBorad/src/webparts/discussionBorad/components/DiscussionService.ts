@@ -11,7 +11,6 @@ require('microsoft-ajax');
 require('sp-runtime');
 require('sharepoint');
 
-
 export default class DiscussionService {
     private _webPartContext: IWebPartContext;
     private ListTitle: string;
@@ -25,7 +24,13 @@ export default class DiscussionService {
         let fetchProps: RequestInit = {
             method: "POST",
             mode: "cors",
-            headers: { "Accept": "application/json;odata=verbose", "cookie": document.cookie },
+            headers: {
+                "Accept": "application/json;odata=verbose",
+                "cookie": document.cookie,
+                "IF-MATCH": "*",
+                "content-type": "application/json;odata=verbose",
+                "X-Http-Method": "MERGE"
+            },
             credentials: "include"
         };
         return fetch(this._webPartContext.pageContext.web.absoluteUrl + "/_api/contextinfo", fetchProps)
@@ -33,6 +38,7 @@ export default class DiscussionService {
                 let digest = responseJson.d.GetContextWebInformation.FormDigestValue as string;
                 let requestHeaders = {
                     "Accept": "application/json; odata=verbose",
+                    "content-type": "application/json;odata=verbose",
                     "X-RequestDigest": digest,
                 };
                 $.ajax({
@@ -68,11 +74,93 @@ export default class DiscussionService {
             return Messages;
         })
     }
-    public CheckUserIsInLikeString(userString: string[]): Promise<any> {
-        return pnp.sp.web.currentUser.get().then((user) => {
-            return userString.indexOf(user.Id.toString()) != -1;
+    public RetriveMessagesLikeString(messageId: number): Promise<any> {
+        const selectField = ["FileDirRef", "LikedByStringId", "LikesCount", "ParentItemID", "ID"];
+        return pnp.sp.web.lists.getByTitle(this.ListTitle).items.select(...selectField).getById(messageId).get().then((Messages) => {
+            return Messages;
         })
     }
+    public CheckUserIsInLikeString(): Promise<any> {
+        return pnp.sp.web.currentUser.get().then((user) => {
+            return user.Id;
+        })
+    }
+    executeJson(options) {
+        var headers = options.headers || {};
+        headers["Accept"] = "application/json;odata=verbose";
+
+        var ajaxOptions =
+        {
+            url: options.url,
+            type: options.method,
+            contentType: "application/json;odata=verbose",
+            headers: headers,
+            data: ""
+        };
+        if (options.method == "POST") {
+            ajaxOptions.data = JSON.stringify(options.payload);
+        }
+
+        return $.ajax(ajaxOptions);
+    }
+    public getListItem(webUrl, listTitle, itemId) {
+        var options = {
+            url: webUrl + "/_api/web/lists/getbytitle('" + listTitle + "')/items(" + itemId + ")",
+            method: "GET"
+        };
+        return this.executeJson(options);
+    }
+    public updateListItem(listTitle, itemId, itemPayload) {
+        let fetchProps: RequestInit = {
+            method: "POST",
+            mode: "cors",
+            headers: {
+                "Accept": "application/json;odata=verbose",
+                "cookie": document.cookie,
+                "IF-MATCH": "*",
+                "content-type": "application/json;odata=verbose",
+                "X-Http-Method": "MERGE"
+            },
+            credentials: "include"
+        };
+        return fetch(this._webPartContext.pageContext.web.absoluteUrl + "/_api/contextinfo", fetchProps)
+            .then((response: any) => response.json()).then((responseJson: any) => {
+                let digest = responseJson.d.GetContextWebInformation.FormDigestValue as string;
+                var options = {
+                    url: this._webPartContext.pageContext.web.absoluteUrl + "/_api/web/lists/getbytitle('" + listTitle + "')/items(" + itemId + ")",
+                    method: "POST",
+                    headers: {
+                        "X-HTTP-Method": "MERGE",
+                        "If-Match": "*",
+                        "X-RequestDigest": digest,
+                    },
+                    payload: itemPayload
+                };
+                return this.executeJson(options);
+            });
+
+    }
+    public updateSpecificMessage(messageId: number, likeString: string[], userId: number, isLike: boolean): Promise<any> {
+        return this.getListItem(this._webPartContext.pageContext.web.absoluteUrl, this.ListTitle, messageId).then((data) => {
+            var likes = data.d.LikesCount;
+            var userKeys = data.d.LikedByStringId == null ? { "results": [] } : data.d.LikedByStringId;
+            var posKey = userKeys.results.indexOf(userId.toString());
+            if (posKey == -1) {
+                userKeys.results.push(userId.toString());
+                likes++;
+            } else {
+                userKeys.results.splice(posKey, 1);
+                likes--;
+            }
+            var postData = {
+                "__metadata": data.d.__metadata,
+                "LikedByStringId": { "results": userKeys.results },
+                LikesCount: likes
+            }
+            return this.updateListItem(this.ListTitle, messageId, postData);
+        })
+    }
+
     public AddDiscussion(): Promise<any> {
         return new Promise<any>((resolve, reject) => {
             let url = this._webPartContext.pageContext.web.absoluteUrl + "/_api/web/lists/getByTitle('" + this.ListTitle + "')/items";

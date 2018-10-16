@@ -5,10 +5,11 @@ export interface IDiscussionBoradProps {
   description: string;
   listTitle: string;
   context: IWebPartContext;
-  discussionId:number;
+  discussionId: number;
 }
 export interface IDiscussionBoradState {
   discussion: any;
+  userId: number;
   messages: Array<any>;
 }
 // export interface IDiscussion {
