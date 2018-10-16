@@ -14,7 +14,7 @@ export default class DiscussionBorad extends React.Component<IDiscussionBoradPro
   constructor(props: IDiscussionBoradProps) {
     super(props);
     this.servcice = new DiscussionService(this.props.context, this.props.listTitle);
-    this.state = { discussion: undefined, messages: [] };
+    this.state = { discussion: undefined, messages: [], userId: null };
   }
   public componentWillMount() {
     //discussion id!!!!!!!!
@@ -22,7 +22,9 @@ export default class DiscussionBorad extends React.Component<IDiscussionBoradPro
       this.servcice.RetriveMessages(discussion.Title).then((messages) => {
         return this.servcice.MessageAddChildren(discussion.Id, messages)
       }).then((message) => {
-        this.setState({ discussion: discussion, messages: message });
+        this.servcice.CheckUserIsInLikeString().then((userID) => {
+          this.setState({ discussion: discussion, messages: message, userId: userID });
+        })
       })
     })
   }
@@ -30,11 +32,10 @@ export default class DiscussionBorad extends React.Component<IDiscussionBoradPro
     let messageBlock = null;
     messageBlock = this.state.messages.map((message, index) => {
       var html = { __html: message.Body };
-      let likeBlock = <LikeBlock service={this.servcice} likeString={message.LikedByStringId} ></LikeBlock>
+      let likeBlock = <LikeBlock userId={this.state.userId} messageId={message.Id} service={this.servcice} likeString={message.LikedByStringId} ></LikeBlock>
       return <div key={"message" + index} className={styles.row}>
         <span className={styles.title}>AuthorID: {message.AuthorId}</span>
         <p dangerouslySetInnerHTML={html} className={styles.subTitle}></p>
-        <p className={styles.description}>{message.LikesCount ? message.LikesCount : 0} Likes</p>
         {likeBlock}
       </div>
     })
@@ -42,12 +43,11 @@ export default class DiscussionBorad extends React.Component<IDiscussionBoradPro
   }
   protected createDiscussion() {
     var html = { __html: this.state.discussion.Body };
-    let likeBlock = <LikeBlock service={this.servcice} likeString={this.state.discussion.LikedByStringId} ></LikeBlock>
+    let likeBlock = <LikeBlock userId={this.state.userId} messageId={this.state.discussion.Id} service={this.servcice} likeString={this.state.discussion.LikedByStringId} ></LikeBlock>
     return <div className={styles.row}>
       <span className={styles.title}>AuthorID: {this.state.discussion.AuthorId}</span>
       <p className={styles.subTitle}>{this.state.discussion.Folder.ItemCount} replies.</p>
       <p dangerouslySetInnerHTML={html} className={styles.description}></p>
-      <p className={styles.description}>{this.state.discussion.LikesCount ? this.state.discussion.LikesCount : 0} Likes</p>
       {likeBlock}
     </div>
   }
