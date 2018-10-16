@@ -5,8 +5,7 @@ import * as $ from 'jquery';
 
 export interface IReplyProps {
     service: DiscussionService;
-    parentMsg: any;
-    folderPath: string;
+    Id: any;
 }
 export interface IReplyState {
     editing: boolean;
@@ -27,7 +26,7 @@ export default class ReplayBlock extends React.Component<IReplyProps, IReplyStat
             <div>
                 {this.state.editing ?
                     <div>
-                        <textarea className='replayText' />
+                        <textarea className={'replayText' + this.props.Id} />
                         <div onClick={this.replay.bind(this)}>replay</div>
                         <span className='warning' style={{ display: 'none' }}>replay content cant be empty</span>
                     </div> :
@@ -36,11 +35,11 @@ export default class ReplayBlock extends React.Component<IReplyProps, IReplyStat
         )
     }
     private replay() {
-        let replyContent = $($('.replayText'))[0].value;
+        let replyContent = $($('.replayText' + this.props.Id))[0].value;
         if (!replyContent) {
             $('.warning').show();
         }
-        this.servcice.AddReply(this.props.parentMsg.Id, replyContent);
+        this.servcice.AddReply(this.props.Id, replyContent);
         this.setState({ editing: false });
     }
 }

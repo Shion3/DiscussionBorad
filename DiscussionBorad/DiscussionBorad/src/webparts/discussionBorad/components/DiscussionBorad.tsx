@@ -39,7 +39,7 @@ export default class DiscussionBorad extends React.Component<IDiscussionBoradPro
         <span className={styles.title}>AuthorID: {message.AuthorId}</span>
         <p dangerouslySetInnerHTML={html} className={styles.subTitle}></p>
         {likeBlock}
-        <Replay service={this.servcice} folderPath={this.state.discussion.Title} parentMsg={message} />
+        <Replay service={this.servcice} Id={message.Id} />
       </div>
     })
     return messageBlock;
@@ -52,7 +52,7 @@ export default class DiscussionBorad extends React.Component<IDiscussionBoradPro
       <p className={styles.subTitle}>{this.state.discussion.Folder.ItemCount} replies.</p>
       <p dangerouslySetInnerHTML={html} className={styles.description}></p>
       {likeBlock}
-      <Replay service={this.servcice} folderPath={this.state.discussion.Title} parentMsg={this.state.discussion} />
+      <Replay service={this.servcice} Id={this.state.discussion.Id} />
     </div>
   }
 
