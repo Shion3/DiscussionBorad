@@ -163,19 +163,16 @@ export default class DiscussionService {
         })
     }
     public editMessage(messageId: number, body: string): Promise<any> {
-        var postData = {
-            Body: body
-        }
         return new Promise<any>((resolve, reject) => {
-            let url = this._webPartContext.pageContext.web.absoluteUrl + "/_api/web/lists/getByTitle('" + this.ListTitle + "')/items(" + messageId + ")";
-            let postData = { "__metadata": { "type": "SP.Data.TextListItem" }, "Body": body };
-            this.Post(url, postData, resolve, reject);
-        }).then(msg => {
-            return msg;
-        }, err => {
-            return -1;
-        }).catch(ex => {
-            return -1;
+            var context = SP.ClientContext.get_current();
+            var item = context.get_web().get_lists().getByTitle(this.ListTitle).getItemById(messageId);
+            item.set_item("Body", body);
+            item.update()
+            context.executeQueryAsync(() => {
+                resolve('success');
+            }, (b, a) => {
+                reject(a.get_message());
+            });
         });
     }
 
