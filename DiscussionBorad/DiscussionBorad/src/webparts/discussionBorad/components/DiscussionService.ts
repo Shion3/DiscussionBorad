@@ -40,6 +40,8 @@ export default class DiscussionService {
                     "Accept": "application/json; odata=verbose",
                     "content-type": "application/json;odata=verbose",
                     "X-RequestDigest": digest,
+                    "X-HTTP-Method": "MERGE",
+                    "If-Match": "*",
                 };
                 $.ajax({
                     url: url,
@@ -90,13 +92,13 @@ export default class DiscussionService {
         headers["Accept"] = "application/json;odata=verbose";
 
         var ajaxOptions =
-        {
-            url: options.url,
-            type: options.method,
-            contentType: "application/json;odata=verbose",
-            headers: headers,
-            data: ""
-        };
+            {
+                url: options.url,
+                type: options.method,
+                contentType: "application/json;odata=verbose",
+                headers: headers,
+                data: ""
+            };
         if (options.method == "POST") {
             ajaxOptions.data = JSON.stringify(options.payload);
         }
@@ -160,13 +162,12 @@ export default class DiscussionService {
             return this.updateListItem(this.ListTitle, messageId, postData);
         })
     }
-    public editMessage(messageId: number, body:string):Promise<any>{
+    public editMessage(messageId: number, body: string): Promise<any> {
         var postData = {
             Body: body
         }
-        pnp.sp.web.lists.getByTitle(this.ListTitle).items.getById(messageId)
         return new Promise<any>((resolve, reject) => {
-            let url = this._webPartContext.pageContext.web.absoluteUrl + "/_api/web/lists/getByTitle('" + this.ListTitle + "')/items";
+            let url = this._webPartContext.pageContext.web.absoluteUrl + "/_api/web/lists/getByTitle('" + this.ListTitle + "')/items(" + messageId + ")";
             let postData = { "__metadata": { "type": "SP.Data.TextListItem" }, "Body": body };
             this.Post(url, postData, resolve, reject);
         }).then(msg => {
@@ -178,19 +179,7 @@ export default class DiscussionService {
         });
     }
 
-    public AddDiscussion(): Promise<any> {
-        return new Promise<any>((resolve, reject) => {
-            let url = this._webPartContext.pageContext.web.absoluteUrl + "/_api/web/lists/getByTitle('" + this.ListTitle + "')/items";
-            let postData = { "__metadata": { "type": "SP.ListItem" }, "Title": "xxxxxxxxxxxx", "contentTypeId": "0x01200" };
-            this.Post(url, postData, resolve, reject);
-        }).then(msg => {
-            return msg;
-        }, err => {
-            return -1;
-        }).catch(ex => {
-            return -1;
-        });
-    }
+
 
     public AddReply(parentId: number, body: string): Promise<any> {
         return new Promise<any>((resolve, reject) => {
@@ -206,50 +195,7 @@ export default class DiscussionService {
             });
         });
     }
-    public AddMessage(discussionTitle: string, parentId: string, body: string, editorID:number): Promise<any> {
-        return new Promise<any>((resolve, reject) => {
-            let url = this._webPartContext.pageContext.web.absoluteUrl + "/_api/web/lists/getByTitle('" + this.ListTitle + "')/AddValidateUpdateItemUsingPath";
-            let postData = {
-                "listItemCreateInfo": {
-                    "FolderPath": {
-                        "DecodedUrl":
-                            `${this._webPartContext.pageContext.web.absoluteUrl}/Lists/${this.ListTitle}/${discussionTitle}`
-                    },
-                    "UnderlyingObjectType": 0
-                },
-                "formValues": [
-                    {
-                        "FieldName": "Title",
-                        "FieldValue": "Reply"
-                    },
-                    {
-                        "FieldName": "Body",
-                        "FieldValue": body
-                    },
-                    {
-                        "FieldName": "ContentType",
-                        "FieldValue": "Message"
-                    },
-                    {
-                        "FieldName": "FileSystemObjectType",
-                        "FieldValue": 0
-                    },
-                    {
-                        "FieldName": "ParentItemID",
-                        "FieldValue": parentId
-                    }
-                ],
-                "bNewDocumentUpdate": false
-            };
-            this.Post(url, postData, resolve, reject);
-        }).then(msg => {
-            return msg;
-        }, err => {
-            return -1;
-        }).catch(ex => {
-            return -1;
-        });
-    }
+    
     ///messages需要保证子节点一定在父节点之后，可以创建时间或者ID排序。
     public MessageAddChildren(discussionId: number, messages: Array<any>): Array<any> {
         messages.splice(0, 0, { children: '' });
