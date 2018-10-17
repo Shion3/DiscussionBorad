@@ -45,9 +45,7 @@ export default class ReplayBlock extends React.Component<IEditProps, IEditState>
             $('.warning').show();
         }
         this.servcice.editMessage(this.props.Id, replyContent).then((result) => {
-            if (result == 'success') {
-                this.props.reLoad();
-            }
+            this.props.reLoad();
         })
         this.setState({ editing: false });
     }
