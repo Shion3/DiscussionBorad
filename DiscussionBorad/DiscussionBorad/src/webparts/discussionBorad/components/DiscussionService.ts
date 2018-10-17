@@ -70,7 +70,7 @@ export default class DiscussionService {
         })
     }
     public RetriveMessages(discussionTitle: string): Promise<any> {
-        const selectField = ["Body", "AuthorId", "FileDirRef", "LikedByStringId", "LikesCount", "ParentItemID", "ID"];
+        const selectField = ["Body", "AuthorId", "FileDirRef", "LikedByStringId", "LikesCount", "ParentItemID", "ID", "ACSDeleted"];
         let filterStr = `FileDirRef eq '${this._webPartContext.pageContext.web.serverRelativeUrl}/Lists/${this.ListTitle}/${discussionTitle}'`;
         return pnp.sp.web.lists.getByTitle(this.ListTitle).items.select(...selectField).filter(filterStr).get().then((Messages) => {
             return Messages;
@@ -92,13 +92,13 @@ export default class DiscussionService {
         headers["Accept"] = "application/json;odata=verbose";
 
         var ajaxOptions =
-            {
-                url: options.url,
-                type: options.method,
-                contentType: "application/json;odata=verbose",
-                headers: headers,
-                data: ""
-            };
+        {
+            url: options.url,
+            type: options.method,
+            contentType: "application/json;odata=verbose",
+            headers: headers,
+            data: ""
+        };
         if (options.method == "POST") {
             ajaxOptions.data = JSON.stringify(options.payload);
         }
@@ -179,7 +179,21 @@ export default class DiscussionService {
         });
     }
 
-
+    public DeleteMessage(messageId: any): any {
+        return new Promise<any>((resolve, reject) => {
+            this.getListItem(this._webPartContext.pageContext.web.absoluteUrl, this.ListTitle, messageId).then((data) => {
+                let url = this._webPartContext.pageContext.web.absoluteUrl + "/_api/web/lists/getByTitle('" + this.ListTitle + "')/items(" + messageId + ")";
+                let postData = { "__metadata": data.d.__metadata, "ACSDeleted": true };
+                this.Post(url, postData, resolve, reject);
+            }).then(msg => {
+                return msg;
+            }, err => {
+                return -1;
+            }).catch(ex => {
+                return -1;
+            });
+        })
+    }
 
     public AddReply(parentId: number, body: string): Promise<any> {
         return new Promise<any>((resolve, reject) => {
@@ -195,7 +209,7 @@ export default class DiscussionService {
             });
         });
     }
-    
+
     ///messages需要保证子节点一定在父节点之后，可以创建时间或者ID排序。
     public MessageAddChildren(discussionId: number, messages: Array<any>): Array<any> {
         messages.splice(0, 0, { children: '' });
