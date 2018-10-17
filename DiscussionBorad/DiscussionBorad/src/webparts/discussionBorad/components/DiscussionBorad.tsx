@@ -5,6 +5,7 @@ import { escape } from '@microsoft/sp-lodash-subset';
 import DiscussionService from './DiscussionService';
 import LikeBlock from './Like';
 import Replay from './Reply'
+import Edit from './Edit';
 
 // const discussionId = 1;
 
@@ -39,7 +40,8 @@ export default class DiscussionBorad extends React.Component<IDiscussionBoradPro
         <span className={styles.title}>AuthorID: {message.AuthorId}</span>
         <p dangerouslySetInnerHTML={html} className={styles.subTitle}></p>
         {likeBlock}
-        <Replay service={this.servcice} folderPath={this.state.discussion.Title} parentMsg={message} />
+        <Replay service={this.servcice} Id={message.Id} reLoad={this.reLoad.bind(this)} />
+        <Edit service={this.servcice} Id={message.Id} reLoad={this.reLoad.bind(this)} replyStr={message.Body}>edit</Edit>
       </div>
     })
     return messageBlock;
@@ -52,11 +54,17 @@ export default class DiscussionBorad extends React.Component<IDiscussionBoradPro
       <p className={styles.subTitle}>{this.state.discussion.Folder.ItemCount} replies.</p>
       <p dangerouslySetInnerHTML={html} className={styles.description}></p>
       {likeBlock}
-      <Replay service={this.servcice} folderPath={this.state.discussion.Title} parentMsg={this.state.discussion} />
+      <Replay service={this.servcice} Id={this.state.discussion.Id} reLoad={this.reLoad.bind(this)} />
     </div>
   }
 
-
+  private reLoad() {
+    this.servcice.RetriveMessages(this.state.discussion.Title).then((messages) => {
+      return this.servcice.MessageAddChildren(this.state.discussion.Id, messages);
+    }).then((message) => {
+      this.setState({ messages: message });
+    })
+  }
   public render(): React.ReactElement<IDiscussionBoradProps> {
     let messageBlock = this.state.messages ? this.createMessage() : [];
     let discussionBlock = this.state.discussion ? this.createDiscussion() : [];

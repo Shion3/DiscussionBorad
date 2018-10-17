@@ -18,7 +18,7 @@ export default class LikeBlock extends React.Component<ILikeProps, ILikeState> {
 
   public componentWillMount() {
     if (this.props.likeString) {
-      this.servcice.RetriveMessagesLikeString(this.props.messageId).then((message) => {
+      this.servcice.RetriveMessageLikeString(this.props.messageId).then((message) => {
         this.setState({ isCurrentLike: message.LikedByStringId.indexOf(this.props.userId.toString()) != -1 });
       })
     }
@@ -26,7 +26,7 @@ export default class LikeBlock extends React.Component<ILikeProps, ILikeState> {
 
   public clickEvent(messageId: number, likeString: string[], userId: number, isLike: boolean) {
     this.servcice.updateSpecificMessage(messageId, likeString, userId, isLike).then((result) => {
-      this.servcice.RetriveMessagesLikeString(this.props.messageId).then((message) => {
+      this.servcice.RetriveMessageLikeString(this.props.messageId).then((message) => {
         this.setState({ reload: true, likeString: message.LikedByStringId, isCurrentLike: message.LikedByStringId == null ? false : message.LikedByStringId.indexOf(userId.toString()) != -1 });
       })
     })

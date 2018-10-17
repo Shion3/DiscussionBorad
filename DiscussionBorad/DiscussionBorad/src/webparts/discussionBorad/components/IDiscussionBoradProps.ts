@@ -12,22 +12,3 @@ export interface IDiscussionBoradState {
   userId: number;
   messages: Array<any>;
 }
-// export interface IDiscussion {
-//   DiscussionId: number;
-//   DiscussionTitle: string;
-//   DiscussionBody: string;
-//   DiscussionAuthor: number;
-//   DiscussionLike: number;
-//   DiscussionLikeStringId: string[];
-//   DiscussionFolder: string;
-//   MessagesCount: number;
-//   Messages: IMessage[];
-// }
-// export interface IMessage {
-//   MessageAuthor: number;
-//   MessageBody: string;
-//   MessageID: number;
-//   MessageLikedByStringId: string[];
-//   MessageLikesCount: number;
-//   MessageParentID: number;
-// }
