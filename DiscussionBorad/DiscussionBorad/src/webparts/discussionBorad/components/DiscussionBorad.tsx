@@ -45,7 +45,7 @@ export default class DiscussionBorad extends React.Component<IDiscussionBoradPro
         <p dangerouslySetInnerHTML={html} className={styles.subTitle}></p>
         {message.ACSDeleted ? "" : likeBlock}
         {message.ACSDeleted ? "" : <Replay service={this.servcice} Id={message.Id} reLoad={this.reLoad.bind(this)} />}
-        {message.ACSDeleted ? "" : <Edit service={this.servcice} Id={message.Id} reLoad={this.reLoad.bind(this)} replyStr={message.Body}>edit</Edit>}
+        {message.ACSDeleted ? "" : <Edit service={this.servcice} Id={message.Id} reLoad={this.reLoad.bind(this)} replyStr={message.FieldValuesAsText.Body}>edit</Edit>}
         {message.ACSDeleted ? "" : deleteBlock}
       </div>
     })

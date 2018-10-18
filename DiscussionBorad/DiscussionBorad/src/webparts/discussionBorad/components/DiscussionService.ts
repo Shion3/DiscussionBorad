@@ -70,9 +70,9 @@ export default class DiscussionService {
         })
     }
     public RetriveMessages(discussionTitle: string): Promise<any> {
-        const selectField = ["Body", "AuthorId", "FileDirRef", "LikedByStringId", "LikesCount", "ParentItemID", "ID", "ACSDeleted"];
+        const selectField = ["Body", "AuthorId", "FileDirRef", "LikedByStringId", "LikesCount", "ParentItemID", "ID", "ACSDeleted","FieldValuesAsText"];
         let filterStr = `FileDirRef eq '${this._webPartContext.pageContext.web.serverRelativeUrl}/Lists/${this.ListTitle}/${discussionTitle}'`;
-        return pnp.sp.web.lists.getByTitle(this.ListTitle).items.select(...selectField).filter(filterStr).get().then((Messages) => {
+        return pnp.sp.web.lists.getByTitle(this.ListTitle).items.select(...selectField).expand("FieldValuesAsText").filter(filterStr).get().then((Messages) => {
             return Messages;
         })
     }
