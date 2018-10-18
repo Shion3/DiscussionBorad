@@ -78,7 +78,7 @@ export default class DiscussionService {
     }
     public RetriveMessageLikeString(messageId: number): Promise<any> {
         const selectField = ["FileDirRef", "LikedByStringId", "LikesCount", "ParentItemID", "ID"];
-        return pnp.sp.web.lists.getByTitle(this.ListTitle).items.select(...selectField).getById(messageId).get().then((Messages) => {
+        return pnp.sp.web.lists.getByTitle(this.ListTitle).items.select(...selectField).expand('FieldValuesAsText').getById(messageId).get().then((Messages) => {
             return Messages;
         })
     }
@@ -92,13 +92,13 @@ export default class DiscussionService {
         headers["Accept"] = "application/json;odata=verbose";
 
         var ajaxOptions =
-        {
-            url: options.url,
-            type: options.method,
-            contentType: "application/json;odata=verbose",
-            headers: headers,
-            data: ""
-        };
+            {
+                url: options.url,
+                type: options.method,
+                contentType: "application/json;odata=verbose",
+                headers: headers,
+                data: ""
+            };
         if (options.method == "POST") {
             ajaxOptions.data = JSON.stringify(options.payload);
         }
@@ -216,11 +216,12 @@ export default class DiscussionService {
             messageIDs.push(message.ID);
             message.children = '';
             if (message.ParentItemID == discussionId) {
-                messages[0].children += `,${index}`
+                messages[0].children += `,${index}`;
+                return;
             }
             let parentIndex = messageIDs.indexOf(message.ParentItemID)
             if (parentIndex != -1) {
-                messages[parentIndex].children += `,${index}`;
+                messages[parentIndex + 1].children += `,${index}`;
             }
         });
         return messages;
