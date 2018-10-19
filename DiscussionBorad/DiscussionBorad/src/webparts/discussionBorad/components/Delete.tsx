@@ -20,11 +20,11 @@ export default class DeleteBlock extends React.Component<IDeleteProps> {
     public render(): React.ReactElement<IDeleteProps> {
         return (
             <div onClick={() => this.DeleteMesage()} >Delete</div>
-        )
+        );
     }
-    DeleteMesage(): any {
+    private DeleteMesage(): any {
         this.servcice.DeleteMessage(this.props.Id).then((result) => {
             this.props.reLoad();
-        })
+        });
     }
 }

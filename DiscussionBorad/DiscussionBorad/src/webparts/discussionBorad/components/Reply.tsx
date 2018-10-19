@@ -33,7 +33,7 @@ export default class ReplayBlock extends React.Component<IReplyProps, IReplyStat
                     </div> :
                     <div onClick={() => { this.setState({ editing: true }); }}>replay</div>}
             </div>
-        )
+        );
     }
     private replay() {
         let replyContent = $($('.replayText' + this.props.Id))[0].value;
@@ -44,7 +44,7 @@ export default class ReplayBlock extends React.Component<IReplyProps, IReplyStat
             if (result == 'success') {
                 this.props.reLoad();
             }
-        })
+        });
         this.setState({ editing: false });
     }
 }

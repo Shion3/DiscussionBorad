@@ -55,7 +55,7 @@ export default class DiscussionService {
             });
     }
     public RetriveDiscussion(): Promise<any> {
-        const url = `${this._webPartContext.pageContext.web.absoluteUrl}/_api/web/lists/getByTitle('${this.ListTitle}')/items?$expand=FieldValuesAsText,Folder/ItemCount`
+        const url = `${this._webPartContext.pageContext.web.absoluteUrl}/_api/web/lists/getByTitle('${this.ListTitle}')/items?$expand=FieldValuesAsText,Folder/ItemCount`;
         return this._webPartContext.spHttpClient.get(url, SPHttpClient.configurations.v1)
             .then((response: SPHttpClientResponse) => {
                 return response.json().then(responseJSON => {
@@ -67,25 +67,25 @@ export default class DiscussionService {
         const expandFileds = ["FieldValuesAsText", "Folder"];
         return pnp.sp.web.lists.getByTitle(this.ListTitle).items.getById(id).expand(...expandFileds).get().then((Discussion) => {
             return Discussion;
-        })
+        });
     }
     public RetriveMessages(discussionTitle: string): Promise<any> {
         const selectField = ["Body", "AuthorId", "FileDirRef", "LikedByStringId", "LikesCount", "ParentItemID", "ID", "ACSDeleted","FieldValuesAsText"];
         let filterStr = `FileDirRef eq '${this._webPartContext.pageContext.web.serverRelativeUrl}/Lists/${this.ListTitle}/${discussionTitle}'`;
         return pnp.sp.web.lists.getByTitle(this.ListTitle).items.select(...selectField).expand("FieldValuesAsText").filter(filterStr).get().then((Messages) => {
             return Messages;
-        })
+        });
     }
     public RetriveMessageLikeString(messageId: number): Promise<any> {
         const selectField = ["FileDirRef", "LikedByStringId", "LikesCount", "ParentItemID", "ID"];
         return pnp.sp.web.lists.getByTitle(this.ListTitle).items.select(...selectField).expand('FieldValuesAsText').getById(messageId).get().then((Messages) => {
             return Messages;
-        })
+        });
     }
     public CheckUserIsInLikeString(): Promise<any> {
         return pnp.sp.web.currentUser.get().then((user) => {
             return user.Id;
-        })
+        });
     }
     private executeJson(options) {
         var headers = options.headers || {};
@@ -158,16 +158,16 @@ export default class DiscussionService {
                 "__metadata": data.d.__metadata,
                 "LikedByStringId": { "results": userKeys.results },
                 LikesCount: likes
-            }
+            };
             return this.updateListItem(this.ListTitle, messageId, postData);
-        })
+        });
     }
     public editMessage(messageId: number, body: string): Promise<any> {
         return new Promise<any>((resolve, reject) => {
             var context = SP.ClientContext.get_current();
             var item = context.get_web().get_lists().getByTitle(this.ListTitle).getItemById(messageId);
             item.set_item("Body", body);
-            item.update()
+            item.update();
             context.executeQueryAsync(() => {
                 resolve('success');
             }, (b, a) => {
@@ -189,7 +189,7 @@ export default class DiscussionService {
             }).catch(ex => {
                 return -1;
             });
-        })
+        });
     }
 
     public AddReply(parentId: number, body: string): Promise<any> {
@@ -198,7 +198,7 @@ export default class DiscussionService {
             var parentItem = context.get_web().get_lists().getByTitle(this.ListTitle).getItemById(parentId);
             var newItem = SP.Utilities.Utility.createNewDiscussionReply(context, parentItem);
             newItem.set_item("Body", body);
-            newItem.update()
+            newItem.update();
             context.executeQueryAsync(() => {
                 resolve('success');
             }, (b, a) => {
@@ -219,7 +219,7 @@ export default class DiscussionService {
                 messages[0].children += `,${index}`;
                 return;
             }
-            let parentIndex = messageIDs.indexOf(message.ParentItemID)
+            let parentIndex = messageIDs.indexOf(message.ParentItemID);
             if (parentIndex != -1) {
                 messages[parentIndex + 1].children += `,${index}`;
             }

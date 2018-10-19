@@ -20,7 +20,7 @@ export default class LikeBlock extends React.Component<ILikeProps, ILikeState> {
     if (this.props.likeString) {
       this.servcice.RetriveMessageLikeString(this.props.messageId).then((message) => {
         this.setState({ isCurrentLike: message.LikedByStringId.indexOf(this.props.userId.toString()) != -1 });
-      })
+      });
     }
   }
 
@@ -28,14 +28,14 @@ export default class LikeBlock extends React.Component<ILikeProps, ILikeState> {
     this.servcice.updateSpecificMessage(messageId, likeString, userId, isLike).then((result) => {
       this.servcice.RetriveMessageLikeString(this.props.messageId).then((message) => {
         this.setState({ reload: true, likeString: message.LikedByStringId, isCurrentLike: message.LikedByStringId == null ? false : message.LikedByStringId.indexOf(userId.toString()) != -1 });
-      })
-    })
+      });
+    });
   }
   public createLikeBlock(isLike: boolean, likeString: string[]) {
     let likeCount = likeString ? likeString.length : 0;
     let html = <div onClick={() => this.clickEvent(this.props.messageId, this.props.likeString, this.state.userId, isLike)} >
       <p className={styles.description}>{likeCount} Likes.    {isLike ? "Unlike" : "Like"}</p>
-    </div >
+    </div >;
     return html;
   }
 
@@ -44,6 +44,6 @@ export default class LikeBlock extends React.Component<ILikeProps, ILikeState> {
     let likeBlock = this.createLikeBlock(this.state.isCurrentLike, this.state.likeString);
     return (
       <div>{likeBlock}</div>
-    )
+    );
   }
 }

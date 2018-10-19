@@ -37,7 +37,7 @@ export default class ReplayBlock extends React.Component<IEditProps, IEditState>
                     </div> :
                     <div onClick={() => { this.setState({ editing: true }); }}>edit</div>}
             </div>
-        )
+        );
     }
     private edit() {
         let replyContent = $($('.editText' + this.props.Id))[0].value;
@@ -46,7 +46,7 @@ export default class ReplayBlock extends React.Component<IEditProps, IEditState>
         }
         this.servcice.editMessage(this.props.Id, replyContent).then((result) => {
             this.props.reLoad();
-        })
+        });
         this.setState({ editing: false });
     }
 }
